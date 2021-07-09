@@ -1,0 +1,9 @@
+---
+# defaults file for proxmox-vm
+proxmox_validate_certs: no
+default_wait: 3
+template_full: yes
+proxmox_host: 192.168.200.12
+proxmox_user: root@pam  
+proxmox_password: C1t1g0_2n0d3
+proxmox_storage: hq_citigo

@@ -1,0 +1,14 @@
+---
+# tasks file for proxmox-vm
+- import_tasks: stop.yml
+  tags: [never, stop, update, destroy]
+- import_tasks: remove.yml
+  tags: [never, destroy]
+- import_tasks: clone.yml
+  tags: [create]
+- import_tasks: configure.yml
+  tags: [create, update]
+- import_tasks: start.yml
+  tags: [create, update]
+- import_tasks: status.yml
+  tags: [never, status]

@@ -1,0 +1,15 @@
+---
+# tasks file for proxmox-vm
+# tags: up, reload
+- name: start VM
+  proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_password }}"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    node: "{{ item.value.node }}"
+    name: "{{ item.value.vm_name|default(omit) }}"
+    vmid: "{{ item.value.vm_vmid|default(omit) }}"
+    state: started
+  with_dict: "{{ vms }}"
+  register: results

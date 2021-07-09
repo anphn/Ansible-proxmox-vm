@@ -1,0 +1,41 @@
+---
+# vars file for proxmox-vm
+vms:
+  test1:
+    node: hq-pve02
+    template_vmid: 53100
+    template_name: centos7-cloud
+    vm_name: test1
+    vm_user: root 
+    vm_password: citigo@@123
+    vm_sshkeys: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDkRuL21Uqf9f8MBhmxDWw5JuTgYNdbRWcKVZatzLyYum3ELWGNrWr7Ma2qpJLFEzbrGgVuUisjIIECCxlc5uq9NSI23A936X5mMnaL+ZTevZPa5ITORgJe8N9/VZZAVvx3ClisMGmt/l27MorF3pLGIH5ElVbkOGH/Cv1sSbIBtoQ4jQvAjKyV3ccyH0asoIBJZ/DEzt5SW0/9LyVszVoVqeGYnE4+el/Hk1fly8Ua7yFq2OJSg/CZy3uD9xw2RzEU1b6borLts4XnEv1xNEfDUWloycB23w/WSURlt7BS4PGLzyuKI7Beln4nJIjbiPOAJj0IeAoh9YU9P7eJSXs1 anphn@anphn'
+    network:
+      vm_ipconfig: 
+        ipconfig0: 'ip=192.168.204.219/24,gw=192.168.204.1'
+      vm_nameservers: '8.8.8.8'
+      vm_netbrigde: vmbr204
+    resource:
+      vm_cores: 1
+      vm_sockets: 1
+      vm_memory: 1024
+      vm_disksize: +10G
+
+  test2:
+    node: hq-pve02
+    template_vmid: 51100
+    template_name: ubuntu1804-cloud
+    vm_name: test2
+    vm_user: root 
+    vm_password: citigo@@123
+    vm_sshkeys: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDkRuL21Uqf9f8MBhmxDWw5JuTgYNdbRWcKVZatzLyYum3ELWGNrWr7Ma2qpJLFEzbrGgVuUisjIIECCxlc5uq9NSI23A936X5mMnaL+ZTevZPa5ITORgJe8N9/VZZAVvx3ClisMGmt/l27MorF3pLGIH5ElVbkOGH/Cv1sSbIBtoQ4jQvAjKyV3ccyH0asoIBJZ/DEzt5SW0/9LyVszVoVqeGYnE4+el/Hk1fly8Ua7yFq2OJSg/CZy3uD9xw2RzEU1b6borLts4XnEv1xNEfDUWloycB23w/WSURlt7BS4PGLzyuKI7Beln4nJIjbiPOAJj0IeAoh9YU9P7eJSXs1 anphn@anphn'
+    network:
+      vm_ipconfig: 
+        ipconfig0: 'ip=192.168.204.220/24,gw=192.168.204.1'
+      vm_nameservers: '8.8.8.8'
+      vm_netbrigde: vmbr204
+    resource:
+      vm_cores: 2
+      vm_sockets: 2
+      vm_memory: 2048
+      vm_disksize: +10G
+

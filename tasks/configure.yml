@@ -1,0 +1,94 @@
+---
+# tasks file for proxmox-vm
+# tags: up, reload
+- name: authenticate
+  uri:
+    url: "https://{{ proxmox_host }}:8006/api2/json/access/ticket"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      username: "{{ proxmox_user }}"
+      password: "{{ proxmox_password }}"
+  register: auth
+- name: update memory and cpu
+  proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_password }}"
+    node: "{{ item.value.node }}"
+    name: "{{ item.value.vm_name|default(omit) }}"
+    vmid: "{{ item.value.vm_vmid|default(omit) }}"
+    cores: "{{ item.value.resource.vm_cores|default(omit) }}"
+    sockets: "{{ item.value.resource.vm_sockets|default(omit) }}"
+    memory: "{{ item.value.resource.vm_memory|default(omit) }}"
+    update: yes
+  when: item.value.resource.vm_cores   is defined or
+        item.value.resource.vm_sockets is defined or
+        item.value.resource.vm_memory  is defined 
+  with_dict: "{{ vms }}"
+- name: setup network and system via cloud-init
+  proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_password }}"
+    node: "{{ item.value.node }}"
+    name: "{{ item.value.vm_name|default(omit) }}"
+    vmid: "{{ item.value.vm_vmid|default(omit) }}"
+    ciuser: "{{ item.value.vm_user|default(omit) }}"
+    cipassword: "{{ item.value.vm_password|default(omit) }}"
+    nameservers: "{{ item.value.network.vm_nameservers|default(omit) }}"
+    ipconfig: "{{item.value.network.vm_ipconfig|default(omit)}}"
+    update: yes
+  with_dict: "{{ vms }}"
+  when: item.value.vm_user   is defined or
+        item.value.vm_password is defined or
+        item.value.resource.disk is defined or
+        item.value.vm_net  is defined
+- name: get VM state
+  proxmox_kvm:
+    api_host: "{{ proxmox_host }}"
+    api_user: "{{ proxmox_user }}"
+    api_password: "{{ proxmox_password }}"
+    node: "{{ item.value.node }}"
+    name: "{{ item.value.vm_name }}"
+    state: current
+  register: status
+  with_dict: "{{ vms }}"
+
+- name: set fact VMID
+  set_fact:
+    vm_vmid: "{{ item.msg | regex_replace('.*vmid = ([1-9][0-9]{0,3}).*', '\\1') }}"
+  with_items: "{{ status.results }}"
+  
+- name: resize root disk
+  uri:
+    url: "https://{{ proxmox_host }}:8006/api2/json/nodes/{{ item.value.node }}/qemu/{{ vm_vmid }}/resize"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    method: PUT
+    headers: 
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+      disk: scsi0
+      size: "{{ item.value.resource.vm_disksize }}"
+  with_dict: "{{ vms }}"
+  when:  item.value.resource.vm_disksize is defined
+- name: setup network and system via cloud-init
+  uri:
+    url: "https://{{ proxmox_host }}:8006/api2/json/nodes/{{ item.value.node }}/qemu/{{ vm_vmid }}/config"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    method: POST
+    headers: 
+      Cookie: "PVEAuthCookie={{ auth.json.data.ticket }}"
+      CSRFPreventionToken: "{{ auth.json.data.CSRFPreventionToken }}"
+    body_format: form-urlencoded
+    body:
+      net0: model=virtio,bridge={{ item.value.network.vm_netbrigde }}
+  with_dict: "{{ vms }}"
+  when:  item.value.network.vm_netbrigde is defined
+- name: wait configuration
+  pause:
+    seconds: "{{ wait_configuration|default(default_wait) }}"
+

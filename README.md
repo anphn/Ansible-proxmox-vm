@@ -73,7 +73,6 @@ ansible-playbook playbook.yml --tags destroy
 | `node` | string | node run VM |
 | `template_name` | string | template name. If `template_vmid` is setted, it can take arbitrary value |
 | `template_id` | string | template VMID (100-N)|
-
 | `vm_user` | string | user name (*cloud-init required*) |
 | `vm_password` | string | user password (*cloud-init required*) |
 | `vm_sshkeys` | list of string | list of public SSH keys (OpenSSH format - *cloud-init required*) |
